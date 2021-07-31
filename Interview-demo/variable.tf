@@ -14,6 +14,3 @@ variable "server_address_range" {
    type = string
 }
 
-variable "subnet_address_cidr" {
-  type = list(string)
-}
