@@ -8,7 +8,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  default
 
 steps:
 - task: CopyFiles@2
