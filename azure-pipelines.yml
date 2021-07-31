@@ -8,7 +8,7 @@ trigger:
 - main
 
 pool:
-  default
+  Interview-Demo
 
 steps:
 - task: CopyFiles@2
