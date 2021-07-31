@@ -1,0 +1,72 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'Interview-demo'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+- task: Terraform@2
+  displayName: terraform init
+  inputs:
+    TemplatePath: '$(System.DefaultWorkingDirectory)/_Interview-Demo-CI/drop'
+    Arguments: 'init'
+    InstallTerraform: true
+    UseAzureSub: true
+    ConnectedServiceNameSelector: 'ConnectedServiceNameARM'
+    ConnectedServiceNameARM: 'Azure subscription 1(f371588f-701a-478c-bbec-64546ce3f6e3)'
+    ManageState: false
+- task: Terraform@2
+  displayName: terraform plan -out=tfplan
+  inputs:
+    TemplatePath: '$(System.DefaultWorkingDirectory)/_Interview-Demo-CI/drop'
+    Arguments: 'plan'
+    InstallTerraform: true
+    UseAzureSub: true
+    ConnectedServiceNameSelector: 'ConnectedServiceNameARM'
+    ConnectedServiceNameARM: 'Azure subscription 1(1)(f371588f-701a-478c-bbec-64546ce3f6e3)'
+    ManageState: false
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write-Host "LASTEXITCODE : $LASTEXITCODE"
+            $plan = $(terraform show -json tfplan | ConvertFrom-Json)
+            $actions = $plan.resource_changes.change.actions
+            Write-Host "Terraform actions : $actions"
+            if (($actions -contains 'create') -or ($actions -contains 'delete') -or ($actions -contains 'update'))
+            {
+              Write-Host "Terraform will perform the following actions : $actions"
+              Write-Host "##vso[task.setvariable variable=anyTfChanges;]true"
+            }
+            else
+            {
+              Write-Host "There is no change detected in Terraform tfplan file"
+            }
+- task: Terraform@2
+  displayName: terraform apply tfplan
+  inputs:
+    TemplatePath: '$(System.DefaultWorkingDirectory)/_Interview-Demo-CI/drop'
+    Arguments: 'apply -auto-approve'
+    InstallTerraform: true
+    UseAzureSub: true
+    ConnectedServiceNameSelector: 'ConnectedServiceNameARM'
+    ConnectedServiceNameARM: 'Azure subscription 1(2)(f371588f-701a-478c-bbec-64546ce3f6e3)'
+    ManageState: false
+  
+
