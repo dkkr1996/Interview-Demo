@@ -60,6 +60,7 @@ steps:
             }
 - task: Terraform@2
   displayName: terraform apply tfplan
+  condition: eq(variables.anyTfChanges, true)
   inputs:
     TemplatePath: '$(System.DefaultWorkingDirectory)/_Interview-Demo-CI/drop'
     Arguments: 'apply -auto-approve'
