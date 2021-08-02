@@ -10,8 +10,8 @@ provider "azurerm" {
   features {}
 }
 resource "azurerm_resource_group" "Interview" {
-  name     = "var.server_name"
-  location = "var.server_location"
+  name     = var.server_name
+  location = var.server_location
 }
 
 resource "azurerm_virtual_network" "Interview" {
@@ -107,4 +107,37 @@ resource "azurerm_network_security_group" "Interview" {
 resource "azurerm_network_interface_security_group_association" "Interview" {
   network_interface_id      = azurerm_network_interface.Interview.id
   network_security_group_id = azurerm_network_security_group.Interview.id
+}
+
+
+
+resource "random_integer" "ri" {
+  min = 10000
+  max = 99999
+}
+
+resource "azurerm_cosmosdb_account" "Interview" {
+  name                = "tfex-cosmos-db-${random_integer.ri.result}"
+  location            = var.server_location
+  resource_group_name = azurerm_resource_group.Interview.name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  enable_automatic_failover = true
+
+
+  capabilities {
+    name = var.db_name
+  }
+
+  consistency_policy {
+    consistency_level       = "BoundedStaleness"
+    max_interval_in_seconds = 10
+    max_staleness_prefix    = 200
+  }
+
+  geo_location {
+    location          = var.server_location
+    failover_priority = 0
+  }
 }
