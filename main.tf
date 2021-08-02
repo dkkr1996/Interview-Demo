@@ -140,4 +140,10 @@ resource "azurerm_cosmosdb_account" "Interview" {
     location          = var.server_location
     failover_priority = 0
   }
+  public_network_access_enabled = true
+  is_virtual_network_filter_enabled = true
+
+  virtual_network_rule {
+    id = azurerm_subnet.Interview.id
+  }
 }
