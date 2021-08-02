@@ -7,13 +7,14 @@ variable "server_location" {
 }
 
 variable "resource_prefix" {
-   type = string
+  type = string
 }
 
 variable "server_address_range" {
-   type = string
+  type = string
 }
 
-variable "subnet_address_cidr" {
-  type = list(string)
+variable "db_name" {
+  type = string
 }
+
