@@ -32,10 +32,10 @@ steps:
     ConnectedServiceNameARM: 'Azure subscription 1(f371588f-701a-478c-bbec-64546ce3f6e3)'
     ManageState: false
 - task: Terraform@2
-  displayName: terraform plan -out=tfplan
+  displayName: terraform plan -out=tfplan 
   inputs:
     TemplatePath: '$(System.DefaultWorkingDirectory)/_Interview-Demo-CI/drop'
-    Arguments: 'plan'
+    Arguments: 'plan -out=tfplan'
     InstallTerraform: true
     UseAzureSub: true
     ConnectedServiceNameSelector: 'ConnectedServiceNameARM'
